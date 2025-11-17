@@ -9,26 +9,26 @@ class CVFCrawler:
     def __init__(self) -> None:
         pass
 
-    def __call__(self, links: List | str = None, save_dir: str = None) -> None:
-        if links == "*":
+    def __call__(self, urls: List | str = None, save_dir: str = None) -> None:
+        if urls == "*":
             raise NotImplementedError("Crawling all papers is under implementation")
 
-        elif links is None:
-            raise ValueError("links cannot be None")
+        elif urls is None:
+            raise ValueError("urls cannot be None")
         
         if save_dir is None:
             raise ValueError("save_dir cannot be None")
     
-        for link in alive_it(links):
+        for url in alive_it(urls, title="Cloning Papers..."):
             
-            filename = link.split("/")[-1]
+            filename = url.split("/")[-1]
             print(f"Cloning: {filename}")
             
             savepath = save_dir + f"/{filename}"
             if os.path.exists(savepath):
                 continue
             
-            source = requests.get(link)
+            source = requests.get(url)
             
             with open(savepath, 'wb') as f:
                 f.write(source.content)
