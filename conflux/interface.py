@@ -71,12 +71,33 @@ class CvF_Crawler_Interface(CVFCrawler):
         
         html_parser = self.get_parser(html=text)
         
-        urls = [x.find_all('a', href=True)[0]['href'][1:] for x in html_parser.find_all("dd")]
-        
-        links = [self.main_url.format(x) for x in urls if 'pdf' in x]
-        
-        sub_save_dir = save_dir + f"/{conf_name}"
-        if not os.path.exists(sub_save_dir):
-            os.mkdir(sub_save_dir)
-        
-        super().__call__(links=links, save_dir = sub_save_dir)
+        hrefs = [x.find_all('a', href=True) for x in html_parser.find_all("dd")]
+        hrefs = [x for x in hrefs if len(x) > 0]
+        main_paper_urls = []
+        sup_paper_urls = []
+
+        for urls in hrefs:
+            main_paper_urls.append(urls[0]['href'][1:])
+            if len(urls) > 1:
+                sup_paper_urls.append(urls[1]['href'][1:])
+            else:
+                sup_paper_urls.append(None)
+
+        main_paper_pdf_urls = [self.main_url.format(x) for x in main_paper_urls if 'pdf' in x]
+        sup_paper_pdf_urls = [self.main_url.format(x) for x in sup_paper_urls if x is not None and 'pdf' in x]
+
+        num_main_papers = len(main_paper_pdf_urls)
+        num_sup_papers = len([x for x in sup_paper_pdf_urls if x is not None])
+
+        print(f"Found {num_main_papers} papers and {num_sup_papers} supplementary materials in {conf_name}")
+        # print("Sample main paper URL:", main_paper_pdf_urls[0])
+        # print("Sample supplementary material URL:", sup_paper_pdf_urls[0] if sup_paper_pdf_urls[0] is not None else "N/A")
+        print("Start downloading...")
+
+        for name, urls in zip(["main", "supplementary"], [main_paper_pdf_urls, sup_paper_pdf_urls]):
+            
+            sub_save_dir = save_dir + f"/{conf_name}/{name}"
+            os.makedirs(sub_save_dir, exist_ok=True)
+
+            print(f"Downloading {name} papers to {sub_save_dir}...")
+            super().__call__(urls=urls, save_dir=sub_save_dir)
