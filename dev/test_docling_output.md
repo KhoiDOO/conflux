@@ -1,5 +1,3 @@
-<!-- image -->
-
 This ICCV paper is the Open Access version, provided by the Computer Vision Foundation. Except for this watermark, it is identical to the accepted version; the final published version of the proceedings is available on IEEE Xplore.
 
 ## VGGSound er : Audio-Visual Evaluations for Foundation Models
@@ -19,8 +17,6 @@ Rigorous evaluation benchmarks have been instrumental in assessing the effective
 * equal contribution
 
 Figure 1. We introduce VGGSound er , a multi-label audiovisual classification benchmark with modality annotations . We extend the original VGGSound test set with human-annotated audible , visible , and visible + audible labels. We add meta labels for common confounders, such as background music. We benchmark eleven recent audio-visual models on VGGSound er . It enables selective analysis of a model's auditory and visual capabilities on classes relevant for the queried modality.
-
-<!-- image -->
 
 aware evaluation of audio-visual foundation models.
 
@@ -87,8 +83,6 @@ Overlapping classes The issue of co-occurring classes is exacerbated by many of 
 Modality misalignment Despite VGGSound's auditory and visual content verification, we find that many of the annotated classes are not visible or not audible, as shown in Fig. 2C. A large fraction of videos contains background music, voice-over and narration, or other background sounds like bird chirping, tweeting or cricket chirping without a visible source. Similarly, some videos contain visible but inaudible cues for classes like sea waves . Static images and slide shows accompa-
 
 Figure 3. Overview of VGGSound er . A . Most samples contain more than one label. B . More than a quarter of labels are audible but not visible. In contrast, only a tiny fraction is visible but not audible. C . Speech and bird sounds are the most common classes; more details can be found in Appendix B. D . Forty percent of the samples contain some combination of background music , voice over , and static image(s) , making the classification task significantly harder.
-
-<!-- image -->
 
 nied by music or other sounds are other frequent sources of misaligned modalities. Finally, some classes are misaligned by definition: wind noise is only audible and not visible. Overall, 48.43 % of the original VGGSound test samples have misaligned modalities. This finding challenges the widely held assumption that VGGSound has strong modality alignment [32, 47].
 
@@ -183,8 +177,6 @@ As Fig. 4 also illustrates, profiling of this kind is enabled through the modali
 In addition to the radar plot in Fig. 4, we provide results on VGGSound in Appendix D, showing that all models have substantially lower performance than their hit scores in Tab. 2. This confirms that many model predictions were incorrectly flagged as false positives in VGGSound due to the incomplete ground-truth labels, painting a distorted picture of models' limitations.
 
 Figure 4. VGGSound er more accurately captures model performance across input modalities . We show the Hit score on VGGSound er and accuracy on VGGSound, normalised by the permodel maximum performance on each benchmark. Specifically for foundation models, we observe a significant difference in performance between VGGSound and VGGSound er .
-
-<!-- image -->
 
 Takeaway 6 VGGSound er 's more complete groundtruth labels allow for more accurate, modality-specific profiling of model performance (see Fig. 4).
 

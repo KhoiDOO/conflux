@@ -1,11 +1,11 @@
 {
     "schema_name": "DoclingDocument",
     "version": "1.8.0",
-    "name": "Zverev_VGGSounder_Audio-Visual_Evaluations_for_Foundation_Models_ICCV_2025_paper",
+    "name": "sample",
     "origin": {
         "mimetype": "application/pdf",
         "binary_hash": 7089240691350971552,
-        "filename": "Zverev_VGGSounder_Audio-Visual_Evaluations_for_Foundation_Models_ICCV_2025_paper.pdf"
+        "filename": "sample.pdf"
     },
     "furniture": {
         "self_ref": "#/furniture",
