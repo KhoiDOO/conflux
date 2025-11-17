@@ -43,6 +43,7 @@ class CvF_Crawler_Interface(CVFCrawler):
                 html_text = self.download_url(conf_url)
                 
                 if html_text is None:
+                    print(f"Conference {conf_name} does not exist. Skipping...")
                     continue
                 
                 print(f"Crawling {conf_name} from {conf_url}")

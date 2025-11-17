@@ -22,7 +22,7 @@ class CVFCrawler:
         for url in alive_it(urls, title="Cloning Papers..."):
             
             filename = url.split("/")[-1]
-            print(f"Cloning: {filename}")
+            # print(f"Cloning: {filename}")
             
             savepath = save_dir + f"/{filename}"
             if os.path.exists(savepath):

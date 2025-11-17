@@ -15,7 +15,7 @@ with open(path.join(HERE, 'README.md'), encoding='utf-8') as f:
 # This call to setup() does all the work
 setup(
     name="conflux",
-    version="0.0.2",
+    version="0.0.4",
     description="A simple crawler to download papers from major computer vision conferences",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -37,8 +37,8 @@ setup(
     packages=["conflux"],
     include_package_data=True,
     install_requires=[
-        "beautifulsoup4==4.12.2",
-        "requests==2.31.0",
+        "beautifulsoup4==4.14.2",
+        "requests==2.32.5",
         "alive-progress==3.1.5"
         ]
 )
