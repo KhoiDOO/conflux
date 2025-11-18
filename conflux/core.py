@@ -14,6 +14,7 @@ from docling.datamodel.base_models import InputFormat
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.datamodel.pipeline_options import PdfPipelineOptions, TableFormerMode
 
+
 class CVFCrawler:
     def __init__(
         self
@@ -22,8 +23,8 @@ class CVFCrawler:
 
     def __call__(
         self, 
-        urls: List | str = CVFCrawler_URLS, 
-        save_dir: str = CVFCrawler_SAVEDIR
+        urls: List | str = CVFCRAWLER_URLS, 
+        save_dir: str = CVFCRAWLER_SAVEDIR
     ) -> None:
         if urls == "*":
             raise NotImplementedError("Crawling all papers is under implementation")
@@ -34,7 +35,7 @@ class CVFCrawler:
         if save_dir is None:
             raise ValueError("save_dir cannot be None")
     
-        for url in alive_it(urls, title=CVFCrawler_ALIVE_PROGRESS_TITLE):
+        for url in alive_it(urls, title=CVFCRAWLER_ALIVE_PROGRESS_TITLE):
             
             filename = url.split("/")[-1]
             
@@ -52,7 +53,7 @@ class CVFCrawler:
         url: str
     ):
         response = requests.get(url)
-        if response.status_code == CVFCrawler_SUCCESS_STATUS_CODE:
+        if response.status_code == CVFCRAWLER_SUCCESS_STATUS_CODE:
             return response.text
         else:
             return None 
@@ -61,14 +62,16 @@ class CVFCrawler:
         self, 
         html: str
     ):
-        return BeautifulSoup(html, CVFCrawler_PARSER)
+        return BeautifulSoup(html, CVFCRAWLER_PARSER)
 
 
 class PaperDoclingParser:
     def __init__(
         self,
         pdf_pipeline_options: dict = {
-            "do_table_structure": True,
+            "do_table_structure": PDP_DO_TABLE_STRUCTURE,
+            "do_picture_classification": PDP_DO_PICTURE_CLASSIFICATION,
+            "do_picture_description": PDP_DO_PICTURE_DESCRIPTION,
         },
     ) -> None:
         self.pipeline_options = PdfPipelineOptions(**pdf_pipeline_options)
@@ -82,10 +85,10 @@ class PaperDoclingParser:
     def get_parse(
         self, 
         file_path: str,
-        return_dict: bool = True,
-        return_markdown: bool = True,
-        return_html: bool = False,
-        return_doctags: bool = False,
+        return_dict: bool = PDP_RETURN_DICT,
+        return_markdown: bool = PDP_RETURN_MARKDOWN,
+        return_html: bool = PDP_RETURN_HTML,
+        return_doctags: bool = PDP_RETURN_DOCTAGS,
     ):
         
         result: ConversionResult = self.converter.convert(file_path)
@@ -94,35 +97,34 @@ class PaperDoclingParser:
 
         if return_dict:
             dict_result = result.document.export_to_dict()
-            outputs['dict'] = dict_result
+            outputs[PDP_OUTPUT_DICT_KEY] = dict_result
         
         if return_markdown:
             markdown_output = result.document.export_to_markdown(
                 image_placeholder=''
             )
-            outputs['markdown'] = markdown_output
+            outputs[PDP_OUTPUT_MD_KEY] = markdown_output
         
         if return_html:
             html_output = result.document.export_to_html()
-            outputs['html'] = html_output
+            outputs[PDP_OUTPUT_HTML_KEY] = html_output
         
         if return_doctags:
             doctags_output = result.document.export_to_doctags()
-            outputs['doctags'] = doctags_output
-
+            outputs[PDP_OUTPUT_DOCTAGS_KEY] = doctags_output
         return outputs
     
     def save_parse(
         self, 
         file_path: str,
-        return_dict: bool = True,
-        return_markdown: bool = True,
-        return_html: bool = False,
-        return_doctags: bool = False,
-        dict_save_path: str = None,
-        markdown_save_path: str = None,
-        html_save_path: str = None,
-        doctags_save_path: str = None,
+        return_dict: bool = PDP_RETURN_DICT,
+        return_markdown: bool = PDP_RETURN_MARKDOWN,
+        return_html: bool = PDP_RETURN_HTML,
+        return_doctags: bool = PDP_RETURN_DOCTAGS,
+        dict_save_path: str = PDP_DICT_SAVE_PATH,
+        markdown_save_path: str = PDP_MD_SAVE_PATH,
+        html_save_path: str = PDP_HTML_SAVE_PATH,
+        doctags_save_path: str = PDP_DOCTAGS_SAVE_PATH,
     ):
         assert return_dict or return_markdown or return_html or return_doctags, \
             "At least one return format must be True."
@@ -163,30 +165,39 @@ class PaperDoclingParser:
         )
 
         if dict_save_path is not None:
-            with open(dict_save_path, 'w') as f:
-                json.dump(outputs['dict'], f, indent=4)
+            if not os.path.exists(dict_save_path):
+                with open(dict_save_path, 'w') as f:
+                    json.dump(outputs['dict'], f, indent=4)
         
         if markdown_save_path is not None:
-            with open(markdown_save_path, 'w') as f:
-                f.write(outputs['markdown'])
+            if not os.path.exists(markdown_save_path):
+                with open(markdown_save_path, 'w') as f:
+                    f.write(outputs['markdown'])
         
         if html_save_path is not None:
-            with open(html_save_path, 'w') as f:
-                f.write(outputs['html'])
+            if not os.path.exists(html_save_path):
+                with open(html_save_path, 'w') as f:
+                    f.write(outputs['html'])
         
         if doctags_save_path is not None:
-            with open(doctags_save_path, 'w') as f:
-                f.write(outputs['doctags'])
+            if not os.path.exists(doctags_save_path):
+                with open(doctags_save_path, 'w') as f:
+                    f.write(outputs['doctags'])
     
     def __call__(
         self,
         file_path: str,
-        save_dir: str = None,
-        return_dict: bool = True,
-        return_markdown: bool = True,
-        return_html: bool = False,
-        return_doctags: bool = False,
+        save_dir: str = PDP_SAVE_DIR,
+        return_dict: bool = PDP_RETURN_DICT,
+        return_markdown: bool = PDP_RETURN_MARKDOWN,
+        return_html: bool = PDP_RETURN_HTML,
+        return_doctags: bool = PDP_RETURN_DOCTAGS,
+        max_file_size_mb: int = PDP_PDF_MAX_FILE_SIZE_MB,
     ):
+        
+        if os.path.getsize(file_path) > max_file_size_mb * 1024 * 1024:
+            print(f"File {file_path} exceeds the maximum size of {max_file_size_mb} MB. Skipping...")
+            return
         
         save_dir = os.path.dirname(file_path) if save_dir is None else save_dir
         os.makedirs(save_dir, exist_ok=True)
@@ -194,6 +205,9 @@ class PaperDoclingParser:
         markdown_save_path = os.path.join(save_dir, os.path.basename(file_path).replace('.pdf', '.md')) if return_markdown else None
         html_save_path = os.path.join(save_dir, os.path.basename(file_path).replace('.pdf', '.html')) if return_html else None
         doctags_save_path = os.path.join(save_dir, os.path.basename(file_path).replace('.pdf', '.txt')) if return_doctags else None
+
+        if all(os.path.exists(path) for path in [dict_save_path, markdown_save_path, html_save_path, doctags_save_path] if path is not None):
+            return
 
         self.save_parse(
             file_path=file_path,
@@ -206,4 +220,3 @@ class PaperDoclingParser:
             html_save_path=html_save_path,
             doctags_save_path=doctags_save_path,
         )
-        
