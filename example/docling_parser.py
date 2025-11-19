@@ -12,6 +12,7 @@ if __name__ == "__main__":
     parser.add_argument("--save_dir", type=str, default=os.getcwd() + "/clone", help="Directory to save papers")
     parser.add_argument("--conf", type=str, default="cvpr", help="Conference name")
     parser.add_argument("--year", type=str, nargs='+', default=["2025"], help="Conference year(s)")
+    parser.add_argument("--parse_sub", action="store_true", help="Also parse supplementary materials")
     parser.add_argument("--debug_mem", action="store_true", help="Enable memory tracing output")
     parser.add_argument("--recreate_parser", action="store_true", help="Recreate PaperDoclingParser for each file (diagnostic)")
     
@@ -74,35 +75,36 @@ if __name__ == "__main__":
             except Exception as e:
                 print(f"Error parsing {pdf_path}: {e}")
         
-        print(f"Parsing supplementary papers...")
-        for pdf_path in alive_it(sup_pdfs):
-            try:
-                if args.recreate_parser:
-                    docling_parser = PaperDoclingParser()
+        if args.parse_sub:
+            print(f"Parsing supplementary papers...")
+            for pdf_path in alive_it(sup_pdfs):
+                try:
+                    if args.recreate_parser:
+                        docling_parser = PaperDoclingParser()
 
-                if args.debug_mem:
-                    tracemalloc.start()
-                    snap1 = tracemalloc.take_snapshot()
-                    t1 = time.time()
+                    if args.debug_mem:
+                        tracemalloc.start()
+                        snap1 = tracemalloc.take_snapshot()
+                        t1 = time.time()
 
-                docling_parser(
-                    file_path=pdf_path,
-                    save_dir=docling_sup_dir,
-                    return_dict=True,
-                    return_markdown=True,
-                    return_html=True,
-                    return_doctags=True,
-                )
+                    docling_parser(
+                        file_path=pdf_path,
+                        save_dir=docling_sup_dir,
+                        return_dict=True,
+                        return_markdown=True,
+                        return_html=True,
+                        return_doctags=True,
+                    )
 
-                if args.debug_mem:
-                    t2 = time.time()
-                    snap2 = tracemalloc.take_snapshot()
-                    top_stats = snap2.compare_to(snap1, 'lineno')
-                    total = sum(stat.size_diff for stat in top_stats)
-                    print(f"Parsed {os.path.basename(pdf_path)} in {t2-t1:.2f}s, memory diff: {total/1024:.1f} KiB")
-                    for stat in top_stats[:5]:
-                        print(stat)
-                    tracemalloc.stop()
+                    if args.debug_mem:
+                        t2 = time.time()
+                        snap2 = tracemalloc.take_snapshot()
+                        top_stats = snap2.compare_to(snap1, 'lineno')
+                        total = sum(stat.size_diff for stat in top_stats)
+                        print(f"Parsed {os.path.basename(pdf_path)} in {t2-t1:.2f}s, memory diff: {total/1024:.1f} KiB")
+                        for stat in top_stats[:5]:
+                            print(stat)
+                        tracemalloc.stop()
 
-            except Exception as e:
-                print(f"Error parsing {pdf_path}: {e}")
+                except Exception as e:
+                    print(f"Error parsing {pdf_path}: {e}")
